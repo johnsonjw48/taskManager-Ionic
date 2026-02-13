@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Account</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+    <!-- Username -->
+    <ion-item>
+      <ion-icon slot="start" name="person-outline"></ion-icon>
+      <ion-input label="Username" labelPlacement="floating" type="text" formControlName="username" placeholder="Enter your username"></ion-input>
+    </ion-item>
+    @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+      <div class="error-message">
+        @if (registerForm.get('username')?.errors?.['required']) {
+          <small>Username is required.</small>
+        }
+        @if (registerForm.get('username')?.errors?.['minlength']) {
+          <small>Username must be at least 3 characters.</small>
+        }
+      </div>
+    }
+
+    <!-- Password -->
+    <ion-item>
+      <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+      <ion-input label="Password" labelPlacement="floating" type="password" formControlName="password" placeholder="Enter your password"></ion-input>
+    </ion-item>
+    @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+      <div class="error-message">
+        @if (registerForm.get('password')?.errors?.['required']) {
+          <small>Password is required.</small>
+        }
+        @if (registerForm.get('password')?.errors?.['minlength']) {
+          <small>Password must be at least 6 characters.</small>
+        }
+      </div>
+    }
+
+    <!-- Submit Button -->
+    <ion-button expand="block" type="submit" class="ion-margin-top" [disabled]="registerForm.invalid">
+      Register
+    </ion-button>
+  </form>
+</ion-content>
