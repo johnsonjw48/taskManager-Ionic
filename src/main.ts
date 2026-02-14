@@ -8,7 +8,8 @@ import { provideHttpClient, withFetch, withInterceptors } from "@angular/common/
 import { authInterceptor } from './app/core/auth/interceptors/auth.interceptor';
 import {registerLocaleData} from "@angular/common";
 import localeFr from '@angular/common/locales/fr';
-import {LOCALE_ID} from "@angular/core";
+import {LOCALE_ID, provideAppInitializer, inject} from "@angular/core";
+import { AuthService } from './app/core/auth/services/auth-service';
 
 registerLocaleData(localeFr)
 
@@ -18,6 +19,7 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    {provide: LOCALE_ID, useValue: 'fr-FR'}
+    {provide: LOCALE_ID, useValue: 'fr-FR'},
+   // provideAppInitializer(() => inject(AuthService).getToken())
   ],
 });

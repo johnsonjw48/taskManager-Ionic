@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, signal, WritableSignal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, WritableSignal} from '@angular/core';
 import {
   IonAvatar,
   IonButton,
@@ -48,7 +48,7 @@ import { CreateTaskModalComponent } from './create-task-modal/create-task-modal.
     IonFab, IonFabButton
   ],
 })
-export class HomePage  {
+export class HomePage implements OnInit {
   private modalCtrl = inject(ModalController);
 
   constructor() {
@@ -71,6 +71,9 @@ export class HomePage  {
   }
 
   ionViewWillEnter() {
+    this.getTasks();
+  }
+  ngOnInit() {
     this.getTasks();
   }
 
