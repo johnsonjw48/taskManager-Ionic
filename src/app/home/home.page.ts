@@ -1,6 +1,7 @@
 import {Component, DestroyRef, inject, signal, WritableSignal} from '@angular/core';
 import {
   IonAvatar,
+  IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
@@ -14,7 +15,10 @@ import {
   IonIcon,
   IonLabel,
   IonTitle,
-  IonToolbar
+  IonToolbar,
+  IonFab,
+  IonFabButton,
+  ModalController
 } from '@ionic/angular/standalone';
 import {LogoutButtonComponent} from '../core/components/logout-button/logout-button.component';
 import {addIcons} from 'ionicons';
@@ -23,12 +27,15 @@ import {
   calendarOutline,
   checkmarkCircleOutline,
   ellipsisHorizontal,
-  timeOutline
+  fileTrayOutline,
+  timeOutline,
+  addOutline
 } from 'ionicons/icons';
 import {TaskService} from "../features/services/task-service";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Status, Task} from "../features/interfaces/task";
 import {DatePipe} from "@angular/common";
+import { CreateTaskModalComponent } from './create-task-modal/create-task-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -37,12 +44,15 @@ import {DatePipe} from "@angular/common";
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, LogoutButtonComponent,
     IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
-    IonIcon, IonLabel, IonChip, IonAvatar, IonFooter, DatePipe
+    IonIcon, IonLabel, IonChip, IonAvatar, IonFooter, DatePipe, IonButton,
+    IonFab, IonFabButton
   ],
 })
 export class HomePage  {
+  private modalCtrl = inject(ModalController);
+
   constructor() {
-    addIcons({ timeOutline, calendarOutline, alertCircleOutline, checkmarkCircleOutline, ellipsisHorizontal });
+    addIcons({ timeOutline, calendarOutline, alertCircleOutline, checkmarkCircleOutline, ellipsisHorizontal, fileTrayOutline, addOutline });
   }
 
   private taskService = inject(TaskService);
@@ -62,6 +72,20 @@ export class HomePage  {
 
   ionViewWillEnter() {
     this.getTasks();
+  }
+
+  async openCreateModal() {
+    const modal = await this.modalCtrl.create({
+      component: CreateTaskModalComponent,
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm' && data) {
+      this.getTasks()
+    }
   }
 
   getStatusColor (status : Status): string {

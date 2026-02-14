@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nouvelle Tâche</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+    
+    <ion-item>
+      <ion-input label="Titre" labelPlacement="floating" formControlName="title" placeholder="Ex: Faire les courses"></ion-input>
+    </ion-item>
+    
+    @if (taskForm.get('title')?.invalid && taskForm.get('title')?.touched) {
+      <div class="error-message">
+        <small>Le titre est requis (min 3 car.)</small>
+      </div>
+    }
+
+    <ion-item>
+      <ion-textarea label="Description" labelPlacement="floating" formControlName="description" rows="4" placeholder="Détails de la tâche..."></ion-textarea>
+    </ion-item>
+
+    <div class="ion-padding-top ion-margin-top">
+      <ion-button expand="block" type="submit" [disabled]="taskForm.invalid || isSubmitting">
+        @if(isSubmitting) {
+          Création...
+        } @else {
+          Enregistrer
+          <ion-icon slot="end" name="save-outline"></ion-icon>
+        }
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>

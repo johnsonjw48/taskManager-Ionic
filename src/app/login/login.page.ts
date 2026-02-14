@@ -12,7 +12,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/angular/standalone';
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {AuthService} from "../core/auth/services/auth-service";
 import {addIcons} from "ionicons";
 import {lockClosedOutline, mailOutline, personOutline} from "ionicons/icons";
@@ -36,7 +36,8 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
     IonButton,
     IonIcon,
     IonButtons,
-    IonBackButton
+    IonBackButton,
+    RouterLink
   ]
 })
 export class LoginPage  {
@@ -64,7 +65,7 @@ export class LoginPage  {
         )
         .subscribe({
         next: (userToken) => {
-          this.router.navigate(['/home'])
+          this.router.navigate(['/tabs/tasks'])
         }
       })
     } else {

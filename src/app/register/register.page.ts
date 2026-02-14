@@ -1,7 +1,7 @@
-import {Component, DestroyRef, inject} from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -39,7 +39,8 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
     IonButton,
     IonIcon,
     IonButtons,
-    IonBackButton
+    IonBackButton,
+    RouterLink
   ]
 })
 export class RegisterPage  {
@@ -67,7 +68,7 @@ export class RegisterPage  {
         )
         .subscribe({
         next: (user:User) => {
-          this.router.navigate(['/home'])
+          this.router.navigate(['/tabs/tasks'])
         },
       });
     } else {

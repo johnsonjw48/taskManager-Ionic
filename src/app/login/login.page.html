@@ -46,5 +46,18 @@
     <ion-button expand="block" type="submit" class="ion-margin-top" [disabled]="loginForm.invalid">
       Se connecter
     </ion-button>
+
+    <div class="auth-footer ion-margin-top">
+      <div class="divider">
+        <span>OU</span>
+      </div>
+      
+      <div class="toggle-auth">
+        <p>Pas encore de compte ?</p>
+        <ion-button fill="outline" color="secondary" expand="block" routerLink="/register">
+          Créer un compte
+        </ion-button>
+      </div>
+    </div>
   </form>
 </ion-content>

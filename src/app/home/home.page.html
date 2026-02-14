@@ -12,45 +12,59 @@
 <ion-content [fullscreen]="true" class="ion-padding-top">
 
   <div class="tasks-container">
-    <!-- Exemple de Carte Tâche -->
-    @for (task of tasks(); track task.id) {
-      <ion-card class="task-card">
-        <div class="card-status-bar status-high"></div>
 
-        <ion-card-header>
-          <ion-card-title>{{ task.title }}</ion-card-title>
-          <ion-card-subtitle class="date-subtitle">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <span>{{ task.createdAt | date: 'd MMMM yyyy' }}</span>
-          </ion-card-subtitle>
-        </ion-card-header>
+    @if (tasks().length > 0) {
+      @for (task of tasks(); track task.id) {
+        <ion-card class="task-card">
+          <div class="card-status-bar status-high"></div>
 
-        <ion-card-content>
-          <p class="description">
-            {{ task.description }}
-          </p>
+          <ion-card-header>
+            <ion-card-title>{{ task.title }}</ion-card-title>
+            <ion-card-subtitle class="date-subtitle">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ task.createdAt | date: 'd MMMM yyyy' }}</span>
+            </ion-card-subtitle>
+          </ion-card-header>
 
-        </ion-card-content>
+          <ion-card-content>
+            <p class="description">
+              {{ task.description }}
+            </p>
+          </ion-card-content>
 
-        <ion-footer class="ion-no-border">
-          <div class="footer-content">
-            <div class="assignees">
-              <ion-avatar class="task-avatar">
-                <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar" />
-              </ion-avatar>
-              <span class="assignee-name">{{ task.user.username }}</span>
+          <ion-footer class="ion-no-border">
+            <div class="footer-content">
+              <div class="assignees">
+                <ion-avatar class="task-avatar">
+                  <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar" />
+                </ion-avatar>
+                <span class="assignee-name">{{ task.user.username }}</span>
+              </div>
+              <div class="actions">
+                <ion-chip outline [color]="getStatusColor(task.status)">
+                  <ion-icon [name]="getStatusIcon(task.status)"></ion-icon>
+                  <ion-label>{{ task.status }}</ion-label>
+                </ion-chip>
+              </div>
             </div>
-            <div class="actions">
-              <ion-chip outline [color]="getStatusColor(task.status)">
-                <ion-icon [name]="getStatusIcon(task.status)"></ion-icon>
-                <ion-label>{{ task.status }}</ion-label>
-              </ion-chip>
-            </div>
-          </div>
-        </ion-footer>
-      </ion-card>
+          </ion-footer>
+        </ion-card>
+      }
+    } @else {
+      <div class="empty-state">
+        <div class="icon-container">
+          <ion-icon name="file-tray-outline"></ion-icon>
+        </div>
+        <h3>Tout est calme...</h3>
+        <p>Aucune tâche à se mettre sous la dent !</p>
+      </div>
     }
 
-
   </div>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="openCreateModal()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
