@@ -20,6 +20,6 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     {provide: LOCALE_ID, useValue: 'fr-FR'},
-   // provideAppInitializer(() => inject(AuthService).getToken())
+    provideAppInitializer(() => inject(AuthService).getToken())
   ],
 });

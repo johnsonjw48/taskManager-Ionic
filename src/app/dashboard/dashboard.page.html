@@ -1,0 +1,73 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Tableau de bord</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <!-- Section Progression Globale -->
+  <div class="progress-card">
+    <div class="progress-text">
+      <h3>Votre Productivité</h3>
+      <p>{{ completionRate() | number:'1.0-0' }}% de réussite</p>
+    </div>
+    
+    <div class="progress-bar-container">
+      <div class="progress-fill" [style.width.%]="completionRate()"></div>
+    </div>
+  </div>
+
+  <!-- Grille des KPIs -->
+  <ion-grid class="ion-no-padding ion-margin-top">
+    <ion-row>
+      
+      <!-- Carte 1 : Mes Tâches (Total) -->
+      <ion-col size="6">
+        <ion-card class="kpi-card blue">
+          <ion-card-content>
+            <div class="icon-box">
+              <ion-icon name="layers-outline"></ion-icon>
+            </div>
+            <div class="stats">
+              <h1>{{ totalTasks() }}</h1>
+              <p>Total</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <!-- Carte 2 : Terminées -->
+      <ion-col size="6">
+        <ion-card class="kpi-card green">
+          <ion-card-content>
+            <div class="icon-box">
+              <ion-icon name="checkmark-done-outline"></ion-icon>
+            </div>
+            <div class="stats">
+              <h1>{{ doneTasks() }}</h1>
+              <p>Terminées</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <!-- Carte 3 : En Cours -->
+      <ion-col size="12">
+        <ion-card class="kpi-card orange">
+          <ion-card-content class="horizontal-content">
+            <div class="icon-box">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="stats-horizontal">
+              <h1>{{ inProgressTasks() }}</h1>
+              <p>Tâches en cours</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

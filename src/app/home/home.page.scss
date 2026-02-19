@@ -82,15 +82,15 @@ ion-content {
     top: 0;
     left: 0;
     
-    &.status-high {
+    &.danger {
       background: var(--ion-color-danger);
     }
     
-    &.status-medium {
+    &.warning {
       background: var(--ion-color-warning);
     }
     
-    &.status-low {
+    &.success {
       background: var(--ion-color-success);
     }
   }

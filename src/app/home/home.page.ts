@@ -2,7 +2,6 @@ import {Component, DestroyRef, inject, OnInit, signal, WritableSignal} from '@an
 import {
   IonAvatar,
   IonButton,
-  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -18,23 +17,26 @@ import {
   IonToolbar,
   IonFab,
   IonFabButton,
-  ModalController
+  ModalController,
+  AlertController
 } from '@ionic/angular/standalone';
-import {LogoutButtonComponent} from '../core/components/logout-button/logout-button.component';
-import {addIcons} from 'ionicons';
+import { addIcons } from 'ionicons';
 import {
   alertCircleOutline,
   calendarOutline,
   checkmarkCircleOutline,
+  checkmarkDoneCircleOutline,
   ellipsisHorizontal,
   fileTrayOutline,
   timeOutline,
-  addOutline
+  addOutline,
+  playCircleOutline,
+  trashOutline
 } from 'ionicons/icons';
-import {TaskService} from "../features/services/task-service";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {Status, Task} from "../features/interfaces/task";
-import {DatePipe} from "@angular/common";
+import { TaskService } from "../features/services/task-service";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Status, Task } from "../features/interfaces/task";
+import { DatePipe, NgClass } from "@angular/common";
 import { CreateTaskModalComponent } from './create-task-modal/create-task-modal.component';
 
 @Component({
@@ -42,22 +44,32 @@ import { CreateTaskModalComponent } from './create-task-modal/create-task-modal.
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, LogoutButtonComponent,
-    IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
-    IonIcon, IonLabel, IonChip, IonAvatar, IonFooter, DatePipe, IonButton,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
+    IonIcon, IonLabel, IonChip, IonAvatar, IonFooter, DatePipe, NgClass, IonButton,
     IonFab, IonFabButton
   ],
 })
 export class HomePage implements OnInit {
   private modalCtrl = inject(ModalController);
+  private alertCtrl = inject(AlertController);
+  private taskService = inject(TaskService);
+  tasks: WritableSignal<Task[]> = signal([]);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
-    addIcons({ timeOutline, calendarOutline, alertCircleOutline, checkmarkCircleOutline, ellipsisHorizontal, fileTrayOutline, addOutline });
+    addIcons({
+      timeOutline,
+      calendarOutline,
+      alertCircleOutline,
+      checkmarkCircleOutline,
+      checkmarkDoneCircleOutline,
+      ellipsisHorizontal,
+      fileTrayOutline,
+      addOutline,
+      playCircleOutline,
+      trashOutline
+    });
   }
-
-  private taskService = inject(TaskService);
-  tasks:WritableSignal<Task[]> = signal([]);
-  private destroyRef = inject(DestroyRef);
 
   getTasks () {
     this.taskService.getTasks()
@@ -87,8 +99,45 @@ export class HomePage implements OnInit {
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm' && data) {
-      this.getTasks()
+      this.getTasks();
     }
+  }
+
+  async onDeleteTask(task: Task) {
+    const alert = await this.alertCtrl.create({
+      header: 'Confirmer la suppression',
+      message: `Voulez-vous vraiment supprimer la tâche "${task.title}" ?`,
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel'
+        },
+        {
+          text: 'Supprimer',
+          role: 'confirm',
+          handler: () => {
+            this.taskService.deleteTask(task.id).subscribe({
+              next: () => {
+                this.getTasks();
+              },
+              error: (err) => console.error('Erreur suppression', err)
+            });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  updateStatus(task: Task, newStatus: string) {
+    this.taskService.updateStatus(task.id, newStatus as Status).subscribe({
+      next: (updatedTask) => {
+        // Mise à jour locale de la liste
+        this.getTasks()
+      },
+      error: (err) => console.error('Erreur mise à jour status', err)
+    });
   }
 
   getStatusColor (status : Status): string {
@@ -107,13 +156,11 @@ export class HomePage implements OnInit {
     }
   }
 
-  // private refresh$ = new BehaviorSubject<void>(undefined);
-  // tasks = toSignal(
-  //   this.refresh$.pipe(switchMap(() => this.taskService.getTasks())),
-  //   {initialValue: [] as Task[]}
-  // )
-  //
-  // ionViewWillEnter() {
-  //   this.refresh$.next();
-  // }
+  getStatusLabel(status: Status): string {
+    switch (status) {
+      case Status.DONE: return 'Terminée';
+      case Status.IN_PROGRESS: return 'En cours';
+      case Status.PENDING: return 'À faire';
+    }
+  }
 }

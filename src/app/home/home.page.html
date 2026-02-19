@@ -13,10 +13,15 @@
     @if (tasks().length > 0) {
       @for (task of tasks(); track task.id) {
         <ion-card class="task-card">
-          <div class="card-status-bar status-high"></div>
+          <div class="card-status-bar" [ngClass]="getStatusColor(task.status)"></div>
 
           <ion-card-header>
-            <ion-card-title>{{ task.title }}</ion-card-title>
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <ion-card-title>{{ task.title }}</ion-card-title>
+              <ion-button fill="clear" color="medium" (click)="onDeleteTask(task)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
             <ion-card-subtitle class="date-subtitle">
               <ion-icon name="calendar-outline"></ion-icon>
               <span>{{ task.createdAt | date: 'd MMMM yyyy' }}</span>
@@ -38,10 +43,24 @@
                 <span class="assignee-name">{{ task.user.username }}</span>
               </div>
               <div class="actions">
+                <!-- Statut Actuel -->
                 <ion-chip outline [color]="getStatusColor(task.status)">
                   <ion-icon [name]="getStatusIcon(task.status)"></ion-icon>
-                  <ion-label>{{ task.status }}</ion-label>
+                  <ion-label>{{ getStatusLabel(task.status) }}</ion-label>
                 </ion-chip>
+
+                <!-- Bouton d'Action Suivante -->
+                @if (task.status === 'PENDING') {
+                  <ion-button fill="solid" size="small" shape="round" color="primary" (click)="updateStatus(task, 'IN_PROGRESS')">
+                    <ion-icon slot="start" name="play-circle-outline"></ion-icon>
+                    Commencer
+                  </ion-button>
+                } @else if (task.status === 'IN_PROGRESS') {
+                  <ion-button fill="solid" size="small" shape="round" color="success" (click)="updateStatus(task, 'DONE')">
+                    <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+                    Terminer
+                  </ion-button>
+                }
               </div>
             </div>
           </ion-footer>
