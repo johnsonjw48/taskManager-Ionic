@@ -1,0 +1,72 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tasks"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Détails</ion-title>
+    <ion-buttons slot="end">
+      <!-- (Optionnel) Un menu d'actions peut être ajouté ici -->
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  @if (task()) {
+    <div class="detail-container">
+      
+      <!-- Date et Statut -->
+      <div class="meta-info">
+        <ion-note>
+          Créée le {{ task()?.createdAt | date:'d MMMM yyyy' }}
+        </ion-note>
+        <ion-chip outline [color]="task()!.status | taskColor">
+          <ion-icon [name]="task()!.status | taskIcon"></ion-icon>
+          <ion-label>{{ task()!.status | taskStatus }}</ion-label>
+        </ion-chip>
+      </div>
+
+      <!-- Titre -->
+      <h1>{{ task()?.title }}</h1>
+
+      <!-- Description -->
+      <p class="description">
+        {{ task()?.description || 'Aucune description fournie.' }}
+      </p>
+
+      <!-- Assigné à -->
+      <div class="assignee-section">
+        <p>Assignée à :</p>
+        <div class="user-info">
+          <ion-avatar>
+             <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar" />
+          </ion-avatar>
+          <span>{{ task()?.user?.username || 'Utilisateur inconnu' }}</span>
+        </div>
+      </div>
+
+      <!-- Actions (si on veut en remettre ici) -->
+       <div class="actions-section ion-margin-top">
+         @if (task()?.status === 'PENDING') {
+            <ion-button expand="block" (click)="updateStatus('IN_PROGRESS')">
+              <ion-icon slot="start" name="play-circle-outline"></ion-icon>
+              Commencer la tâche
+            </ion-button>
+         } @else if (task()?.status === 'IN_PROGRESS') {
+            <ion-button expand="block" color="success" (click)="updateStatus('DONE')">
+              <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+              Terminer la tâche
+            </ion-button>
+         }
+       </div>
+
+    </div>
+  } @else {
+    <!-- Chargement (Skeleton) -->
+    <div class="ion-padding ion-text-center">
+      <ion-spinner></ion-spinner>
+      <p>Chargement des détails...</p>
+    </div>
+  }
+
+</ion-content>

@@ -43,4 +43,9 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'task-detail/:id',
+    loadComponent: () => import('./home/task-detail/task-detail.page').then( m => m.TaskDetailPage),
+    canActivate: [authGuard]
+  },
 ];

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, WritableSignal } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonCard, IonCardContent,
@@ -7,8 +7,7 @@ import {
 import { addIcons } from 'ionicons';
 import { layersOutline, checkmarkDoneOutline, timeOutline } from 'ionicons/icons';
 import { TaskService } from '../features/services/task-service';
-import { Task, Status } from '../features/interfaces/task';
-import { take } from 'rxjs';
+import { Status } from '../features/interfaces/task';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,12 +21,11 @@ import { take } from 'rxjs';
   ]
 })
 export class DashboardPage {
-  private taskService = inject(TaskService);
+  public taskService = inject(TaskService);
 
-  // Signal principal contenant toutes les tâches
-  tasks: WritableSignal<Task[]> = signal([]);
+  // Raccourci vers le signal partagé (lecture seule)
+  tasks = this.taskService.tasks;
 
-  // Signaux calculés (KPIs)
   totalTasks = computed(() => this.tasks().length);
 
   doneTasks = computed(() =>
@@ -49,13 +47,6 @@ export class DashboardPage {
   }
 
   ionViewWillEnter() {
-    this.loadStats();
-  }
-
-  private loadStats() {
-    this.taskService.getTasks().pipe(take(1)).subscribe({
-      next: (tasks) => this.tasks.set(tasks),
-      error: (err) => console.error('Erreur chargement dashboard', err)
-    });
+    this.taskService.getTasks().subscribe();
   }
 }

@@ -1,4 +1,5 @@
-import {Component, DestroyRef, inject, OnInit, signal, WritableSignal} from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   IonAvatar,
   IonButton,
@@ -38,6 +39,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Status, Task } from "../features/interfaces/task";
 import { DatePipe, NgClass } from "@angular/common";
 import { CreateTaskModalComponent } from './create-task-modal/create-task-modal.component';
+import { TaskStatusPipe } from '../shared/pipes/task-status.pipe';
+import {TaskColorPipe} from "../shared/pipes/task-color.pipe";
+import {TaskIconPipe} from "../shared/pipes/task-icon.pipe";
 
 @Component({
   selector: 'app-home',
@@ -46,14 +50,15 @@ import { CreateTaskModalComponent } from './create-task-modal/create-task-modal.
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
     IonIcon, IonLabel, IonChip, IonAvatar, IonFooter, DatePipe, NgClass, IonButton,
-    IonFab, IonFabButton
+    IonFab, IonFabButton, TaskStatusPipe, TaskColorPipe, TaskIconPipe
   ],
 })
 export class HomePage implements OnInit {
   private modalCtrl = inject(ModalController);
   private alertCtrl = inject(AlertController);
-  private taskService = inject(TaskService);
-  tasks: WritableSignal<Task[]> = signal([]);
+  public taskService = inject(TaskService); // Public pour l'utiliser dans le HTML
+  private router = inject(Router);
+
   private destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -71,22 +76,33 @@ export class HomePage implements OnInit {
     });
   }
 
-  getTasks () {
-    this.taskService.getTasks()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: tasks => this.tasks.set(tasks),
-        error: err => console.log(err)
-      })
+  // Navigation personnalisée pour éviter les conflits avec les boutons internes
+  goToDetail(id: number, event: Event) {
+    const target = event.target as HTMLElement;
+
+    // Si l'élément cliqué (ou un de ses parents) est un bouton, on annule la navigation
+    if (target.closest('ion-button')) {
+      return;
+    }
+
+    this.router.navigate(['/task-detail', id]);
+  }
+
+
+  tasks = this.taskService.tasks;
+
+  loadTasks() {
+    this.taskService.getTasks().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      error: err => console.log('Erreur chargement liste', err)
+    });
   }
 
   ionViewWillEnter() {
-    this.getTasks();
+    this.loadTasks();
   }
+
   ngOnInit() {
-    this.getTasks();
+    this.loadTasks(); // Initialisation garantie
   }
 
   async openCreateModal() {
@@ -96,30 +112,25 @@ export class HomePage implements OnInit {
 
     await modal.present();
 
-    const { data, role } = await modal.onWillDismiss();
+    const { data } = await modal.onWillDismiss();
 
-    if (role === 'confirm' && data) {
-      this.getTasks();
-    }
+    // Plus besoin d'appeler getTasks() ici !
+    // Le service a déjà mis à jour la liste via createTask(data).
   }
 
-  async onDeleteTask(task: Task) {
+  async onDeleteTask(task: Task, event: Event) {
+    event.stopPropagation();
     const alert = await this.alertCtrl.create({
       header: 'Confirmer la suppression',
       message: `Voulez-vous vraiment supprimer la tâche "${task.title}" ?`,
       buttons: [
-        {
-          text: 'Annuler',
-          role: 'cancel'
-        },
+        { text: 'Annuler', role: 'cancel' },
         {
           text: 'Supprimer',
           role: 'confirm',
           handler: () => {
+            // Le service gère la suppression ET la mise à jour locale
             this.taskService.deleteTask(task.id).subscribe({
-              next: () => {
-                this.getTasks();
-              },
               error: (err) => console.error('Erreur suppression', err)
             });
           }
@@ -130,37 +141,11 @@ export class HomePage implements OnInit {
     await alert.present();
   }
 
-  updateStatus(task: Task, newStatus: string) {
+  updateStatus(task: Task, newStatus: string, event: Event) {
+    event.stopPropagation();
+    // Le service gère la mise à jour API ET la mise à jour locale (optimistic)
     this.taskService.updateStatus(task.id, newStatus as Status).subscribe({
-      next: (updatedTask) => {
-        // Mise à jour locale de la liste
-        this.getTasks()
-      },
       error: (err) => console.error('Erreur mise à jour status', err)
     });
-  }
-
-  getStatusColor (status : Status): string {
-    switch (status) {
-      case Status.DONE: return 'success';
-      case Status.IN_PROGRESS: return 'warning';
-      case Status.PENDING: return 'danger';
-    }
-  }
-
-  getStatusIcon (status : Status): string {
-    switch (status) {
-      case Status.DONE: return 'checkmark-circle-outline';
-      case Status.IN_PROGRESS: return 'time-outline';
-      case Status.PENDING: return 'alert-circle-outline';
-    }
-  }
-
-  getStatusLabel(status: Status): string {
-    switch (status) {
-      case Status.DONE: return 'Terminée';
-      case Status.IN_PROGRESS: return 'En cours';
-      case Status.PENDING: return 'À faire';
-    }
   }
 }

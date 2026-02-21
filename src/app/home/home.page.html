@@ -12,20 +12,30 @@
 
     @if (tasks().length > 0) {
       @for (task of tasks(); track task.id) {
-        <ion-card class="task-card">
-          <div class="card-status-bar" [ngClass]="getStatusColor(task.status)"></div>
+        <ion-card class="task-card" (click)="goToDetail(task.id, $event)">
+          <div class="card-status-bar" [ngClass]="task.status | taskColor"></div>
 
           <ion-card-header>
-            <div style="display: flex; justify-content: space-between; align-items: start;">
+            <!-- Ligne 1 : Titre + Poubelle -->
+            <div class="header-top">
               <ion-card-title>{{ task.title }}</ion-card-title>
-              <ion-button fill="clear" color="medium" (click)="onDeleteTask(task)">
+              <ion-button fill="clear" color="medium" (click)="onDeleteTask(task, $event)">
                 <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
               </ion-button>
             </div>
-            <ion-card-subtitle class="date-subtitle">
-              <ion-icon name="calendar-outline"></ion-icon>
-              <span>{{ task.createdAt | date: 'd MMMM yyyy' }}</span>
-            </ion-card-subtitle>
+            
+            <!-- Ligne 2 : Date + Statut -->
+            <div class="header-meta">
+              <ion-card-subtitle class="date-subtitle">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ task.createdAt | date: 'd MMMM yyyy' }}</span>
+              </ion-card-subtitle>
+
+              <ion-chip outline [color]="task.status | taskColor" class="status-chip">
+                <ion-icon [name]="task.status | taskIcon"></ion-icon>
+                <ion-label>{{ task.status | taskStatus }}</ion-label>
+              </ion-chip>
+            </div>
           </ion-card-header>
 
           <ion-card-content>
@@ -36,27 +46,23 @@
 
           <ion-footer class="ion-no-border">
             <div class="footer-content">
+              <!-- Gauche : Assigné -->
               <div class="assignees">
                 <ion-avatar class="task-avatar">
                   <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar" />
                 </ion-avatar>
                 <span class="assignee-name">{{ task.user.username }}</span>
               </div>
+              
+              <!-- Droite : Actions UNIQUEMENT (Boutons) -->
               <div class="actions">
-                <!-- Statut Actuel -->
-                <ion-chip outline [color]="getStatusColor(task.status)">
-                  <ion-icon [name]="getStatusIcon(task.status)"></ion-icon>
-                  <ion-label>{{ getStatusLabel(task.status) }}</ion-label>
-                </ion-chip>
-
-                <!-- Bouton d'Action Suivante -->
                 @if (task.status === 'PENDING') {
-                  <ion-button fill="solid" size="small" shape="round" color="primary" (click)="updateStatus(task, 'IN_PROGRESS')">
+                  <ion-button fill="solid" size="small" shape="round" color="primary" (click)="updateStatus(task, 'IN_PROGRESS', $event)">
                     <ion-icon slot="start" name="play-circle-outline"></ion-icon>
                     Commencer
                   </ion-button>
                 } @else if (task.status === 'IN_PROGRESS') {
-                  <ion-button fill="solid" size="small" shape="round" color="success" (click)="updateStatus(task, 'DONE')">
+                  <ion-button fill="solid" size="small" shape="round" color="success" (click)="updateStatus(task, 'DONE', $event)">
                     <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
                     Terminer
                   </ion-button>
